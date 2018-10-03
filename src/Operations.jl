@@ -477,7 +477,10 @@ function install_archive(
             !isdir(version_path) && mkpath(version_path)
             cp(joinpath(dir, dirs[1]), version_path; force=true)
             if occursin("AWSSDK", version_path)
-                syntax_check(version_path)
+                # syntax_check(version_path)
+                root = joinpath(version_path, "src", "AWSSDK.jl")
+                @show root
+                include(root)
             end
             # Base.rm(path; force = true)
             return true
