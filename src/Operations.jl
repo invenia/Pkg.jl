@@ -483,6 +483,7 @@ function install_archive(
             cp(joinpath(dir, dirs[1]), version_path; force=true)
             if occursin("AWSSDK", version_path)
                 println("********* Line: $(@__LINE__) *********")
+                println("cp $(joinpath(dir, dirs[1])) $(version_path)")
                 syntax_check(version_path)
                 # size_check(version_path)
             end
