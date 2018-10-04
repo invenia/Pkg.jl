@@ -479,7 +479,8 @@ function install_archive(
             filter!(x -> x != "pax_global_header", dirs)
             @assert length(dirs) == 1
             !isdir(version_path) && mkpath(version_path)
-            cp(joinpath(dir, dirs[1]), version_path; force=true)
+            run(`cp -rf $(joinpath(dir, dirs[1])) $version_path`)
+            # cp(joinpath(dir, dirs[1]), version_path; force=true)
             if occursin("AWSSDK", version_path)
                 println("********* Line: $(@__LINE__) *********")
                 syntax_check(version_path)
