@@ -477,10 +477,7 @@ function install_archive(
             !isdir(version_path) && mkpath(version_path)
             cp(joinpath(dir, dirs[1]), version_path; force=true)
             if occursin("AWSSDK", version_path)
-                # syntax_check(version_path)
-                root = joinpath(version_path, "src", "AWSSDK.jl")
-                @show root
-                @eval Main include($root)
+                size_check(version_path)
             end
             # Base.rm(path; force = true)
             return true
@@ -497,6 +494,17 @@ function syntax_check(dir::AbstractString)
         elseif isfile(path) && endswith(path, ".jl")
             println(path)
             Meta.parse("begin $(read(path, String)) end")
+        end
+    end
+end
+
+function size_check(dir::AbstractString)
+    for file in readdir(dir)
+        path = joinpath(dir, file)
+        if isdir(path)
+            size_check(path)
+        elseif isfile(path) && endswith(path, ".jl")
+            println("$path: $(lstat(path).size)")
         end
     end
 end
