@@ -471,6 +471,7 @@ function install_archive(
             url_success || continue
             # syntax_check(dir)
             if occursin("AWSSDK", version_path)
+                println("********* Line: $(@__LINE__) *********")
                 syntax_check(dir)
             end
             dirs = readdir(dir)
@@ -480,6 +481,7 @@ function install_archive(
             !isdir(version_path) && mkpath(version_path)
             cp(joinpath(dir, dirs[1]), version_path; force=true)
             if occursin("AWSSDK", version_path)
+                println("********* Line: $(@__LINE__) *********")
                 syntax_check(version_path)
                 # size_check(version_path)
             end
