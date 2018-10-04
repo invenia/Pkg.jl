@@ -644,7 +644,7 @@ function syntax_check(dir::AbstractString)
         path = joinpath(dir, file)
         if isdir(path)
             syntax_check(path)
-        elseif isfile(path) && file in SIZE_CHECK && SIZE_CHECK[file] != lstat(path).size
+        elseif isfile(path) && haskey(SIZE_CHECK, file) && SIZE_CHECK[file] != lstat(path).size
             println(path)
             println("Size: $(lstat(path).size)")
             Meta.parse("begin $(read(path, String)) end")
