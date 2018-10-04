@@ -480,7 +480,7 @@ function install_archive(
                 # syntax_check(version_path)
                 root = joinpath(version_path, "src", "AWSSDK.jl")
                 @show root
-                include(root)
+                @eval Main include($root)
             end
             # Base.rm(path; force = true)
             return true
