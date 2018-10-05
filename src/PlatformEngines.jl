@@ -121,7 +121,7 @@ will be printed and the typical searching will be performed.
 
 If `verbose` is `true`, print out the various engines as they are searched.
 """
-function probe_platform_engines!(;verbose::Bool = true)
+function probe_platform_engines!(;verbose::Bool = false)
     global already_probed
     global gen_download_cmd, gen_list_tarball_cmd, gen_package_cmd
     global gen_unpack_cmd, parse_tarball_listing
@@ -130,10 +130,10 @@ function probe_platform_engines!(;verbose::Bool = true)
     # The probulator will check each of them by attempting to run `$test_cmd`,
     # and if that works, will set the global download functions appropriately.
     download_engines = [
-        (`curl --help`, (url, path) -> (x = `curl -C - -sS -o $path -L $url`; println(string(x)); x)),
-        (`wget --help`, (url, path) -> (x = `wget -c -O $path $url`; println(string(x)); x)),
-        (`fetch --help`, (url, path) -> (x = `fetch -f $path $url`; println(string(x)); x)),
-        (`busybox wget --help`, (url, path) -> (x = `busybox wget -c -O $path $url`; println(string(x)); x)),
+        (`curl --help`, (url, path) -> `curl -C - -sS -o $path -L $url`),
+        (`wget --help`, (url, path) -> `wget -c -O $path $url`),
+        (`fetch --help`, (url, path) -> `fetch -f $path $url`),
+        (`busybox wget --help`, (url, path) -> `busybox wget -c -O $path $url`),
     ]
 
     # 7z is rather intensely verbose.  We also want to try running not only
@@ -174,9 +174,7 @@ function probe_platform_engines!(;verbose::Bool = true)
             elseif endswith(tarball_path, ".bz2")
                 Jjz = "j"
             end
-            x = `$tar_cmd -x$(Jjz)f $(tarball_path) --directory=$(out_path)`
-            println(string(x))
-            return x
+            return `$tar_cmd -x$(Jjz)f $(tarball_path) --directory=$(out_path)`
         end
         package_tar = (in_path, tarball_path) ->
             `$tar_cmd -czvf $tarball_path -C $(in_path) .`

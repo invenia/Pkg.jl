@@ -471,7 +471,7 @@ function install_archive(
             url_success || continue
             # syntax_check(dir)
             if occursin("AWSSDK", version_path)
-                println("********* Line: $(@__LINE__) *********")
+                println("********* AWSSDK Extraction *********")
                 syntax_check(dir)
             end
             dirs = readdir(dir)
@@ -480,14 +480,13 @@ function install_archive(
             @assert length(dirs) == 1
             !isdir(version_path) && mkpath(version_path)
             # run(`cp -rf $(joinpath(dir, dirs[1], ".")) $version_path`)
-            cp(joinpath(dir, dirs[1]), version_path; force=true)
+            mv(joinpath(dir, dirs[1]), version_path; force=true)
             if occursin("AWSSDK", version_path)
-                println("********* Line: $(@__LINE__) *********")
-                println("cp $(joinpath(dir, dirs[1])) $(version_path)")
+                println("********* AWSSDK Install *********")
+                println("mv $(joinpath(dir, dirs[1])) $(version_path)")
                 syntax_check(version_path)
-                # size_check(version_path)
             end
-            # Base.rm(path; force = true)
+            Base.rm(path; force = true)
             return true
         end
     end
@@ -656,17 +655,6 @@ function syntax_check(dir::AbstractString)
     end
 end
 
-
-# function size_check(dir::AbstractString)
-#     for file in readdir(dir)
-#         path = joinpath(dir, file)
-#         if isdir(path)
-#             size_check(path)
-#         elseif isfile(path) && endswith(path, ".jl")
-#             println("$path: $(lstat(path).size)")
-#         end
-#     end
-# end
 
 const refspecs = ["+refs/*:refs/remotes/cache/*"]
 function install_git(
@@ -1040,8 +1028,6 @@ function with_dependencies_loadable_at_toplevel(f, mainctx::Context, pkg::Packag
     end
 
     mktempdir() do tmpdir
-        @info "!!! Using temporary directory $tmpdir; Project and Manifest files will go here"
-
         localctx.env.project_file = joinpath(tmpdir, "Project.toml")
         localctx.env.manifest_file = joinpath(tmpdir, "Manifest.toml")
 
@@ -1091,7 +1077,6 @@ function with_dependencies_loadable_at_toplevel(f, mainctx::Context, pkg::Packag
 
         sep = Sys.iswindows() ? ';' : ':'
         withenv("JULIA_LOAD_PATH" => "@$sep$tmpdir", "JULIA_PROJECT"=>nothing) do
-            @info "!!! JULIA_LOAD_PATH set to @$sep$tmpdir"
             f(localctx)
         end
     end
@@ -1256,9 +1241,7 @@ function build_versions(ctx::Context, uuids::Vector{UUID}; might_need_to_resolve
             --eval $code
             ```
         run_build = () -> begin
-            @info "!!! Using log file at $log_file"
             ok = open(log_file, "w") do log
-                @info "!!! Running command $cmd"
                 success(pipeline(cmd, stdout=log, stderr=log))
             end
             if !ok
